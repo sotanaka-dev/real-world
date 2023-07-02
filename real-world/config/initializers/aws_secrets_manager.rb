@@ -18,10 +18,12 @@ def get_rds_connection
   secret = get_secret_value_response.secret_string
 end
 
-rds_connection = get_rds_connection
-db_config = JSON.parse(rds_connection)
+if Rails.env.production?
+  rds_connection = get_rds_connection
+  db_config = JSON.parse(rds_connection)
 
-ENV['DB_HOST'] = db_config['host']
-ENV['DB_USERNAME'] = db_config['username']
-ENV['DB_PASSWORD'] = db_config['password']
-ENV['DB_NAME'] = db_config['dbname']
+  ENV['DB_HOST'] = db_config['host']
+  ENV['DB_USERNAME'] = db_config['username']
+  ENV['DB_PASSWORD'] = db_config['password']
+  ENV['DB_NAME'] = db_config['dbname']
+end
