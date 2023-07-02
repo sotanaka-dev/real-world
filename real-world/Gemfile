@@ -56,4 +56,6 @@ end
 
 group :production do
   gem 'aws-sdk-secretsmanager'
+  gem "sentry-ruby"
+  gem "sentry-rails"
 end
