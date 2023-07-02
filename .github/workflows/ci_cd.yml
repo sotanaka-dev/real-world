@@ -45,19 +45,30 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    env:
+      PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
+      HOSTNAME_1: ${{ secrets.HOSTNAME_1  }}
+      HOSTNAME_2: ${{ secrets.HOSTNAME_2  }}
+      USER_NAME: ${{ secrets.USER_NAME  }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy in Amazon EC2
-        env:
-          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
-          HOSTNAME: ${{ secrets.HOSTNAME  }}
-          USER_NAME: ${{ secrets.USER_NAME  }}
-
+      - name: Deploy to EC2 Instance 1
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME_1} '
+            cd /home/ec2-user/real-world &&
+            git fetch --all &&
+            git reset --hard origin/main &&
+            sudo docker compose -f docker-compose-prod.yml down &&
+            sudo docker compose -f docker-compose-prod.yml up -d --build
+            '
+
+      - name: Deploy to EC2 Instance 2
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME_2} '
             cd /home/ec2-user/real-world &&
             git fetch --all &&
             git reset --hard origin/main &&
